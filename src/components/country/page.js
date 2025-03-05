@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 const VisaConsultancySection = () => {
   const countries = [
@@ -11,28 +12,27 @@ const VisaConsultancySection = () => {
     { name: 'SPAIN', flag: '/spain-flag.png', description: 'Spain Study Visa Consultancy', color: 'bg-red-600' },
   ];
 
-  // Function to handle redirection on button click
   const handleContactClick = () => {
     window.location.href = 'https://www.galaxyeducation.org/contact';
   };
 
   return (
     <section className="w-full max-w-7xl mx-auto p-6 bg-gray-300">
-      {/* Heading and Hook */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Your Gateway to Global Education</h1>
         <p className="text-xl text-gray-600">Effortless Visas, Endless Possibilities for your international education journey.</p>
       </div>
-      {/* Country Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {countries.map((country, index) => (
+        {countries.map((country) => (
           <div
-            key={index}
+            key={country.name}
             className={`h-72 ${country.color} flex flex-col items-center justify-center text-white rounded-xl shadow-md transition-transform transform hover:scale-105 hover:shadow-xl`}
           >
-            <img
+            <Image
               src={country.flag}
               alt={`${country.name} flag`}
+              width={64}
+              height={64}
               className="w-16 h-16 mb-4 rounded-full border-2 border-white shadow-sm"
             />
             <h3 className="text-xl font-bold">{country.name}</h3>

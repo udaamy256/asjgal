@@ -7,8 +7,6 @@ import VisaServicesSection from '@/components/visitvisa/page';
 import VisaConsultancySection from '@/components/country/page';
 
 export default function HomePage() {
- 
-
   const faqs = [
     {
       question: 'How can Galaxy Consultants help with my visa application?',
@@ -47,47 +45,18 @@ export default function HomePage() {
     },
   ];
 
-  const blogs = [
-    {
-      id: 1,
-      date: 'October 19, 2023',
-      title: 'Changes in recent consultancy styles now a days',
-      description: 'Our business consulting programs helps to break the performance of your...',
-      image: '/images/blog1.jpg',
-    },
-    {
-      id: 2,
-      date: 'October 19, 2023',
-      title: 'How consultation is affecting new ventures in 2023',
-      description: 'Our business consulting programs helps to break the performance of your...',
-      image: '/images/blog2.jpg',
-    },
-    {
-      id: 3,
-      date: 'October 19, 2023',
-      title: 'We work more to help you makes your brand unique',
-      description: 'Our business consulting programs helps to break the performance of your...',
-      image: '/images/blog3.jpg',
-    },
-    {
-      id: 4,
-      date: 'October 19, 2023',
-      title: 'Revitalising your people in a retail downturn',
-      description: 'Our business consulting programs helps to break the performance of your...',
-      image: '/images/blog4.jpg',
-    },
-  ];
+  
 
   return (
     <div className="bg-gray-100">
       <section className="relative h-[500px]">
-      <div style={{ minHeight: '400px', width: '100%' }}>
-        <HomePage1 />
-      </div> 
+        <div style={{ minHeight: '400px', width: '100%' }}>
+          <HomePage1 />
+        </div>
       </section>
 
-      <section >
-             <VisaConsultancySection />
+      <section>
+        <VisaConsultancySection />
       </section>
 
       {/* Services Section */}
@@ -104,26 +73,33 @@ export default function HomePage() {
           ))}
         </div>
         <button
-  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg mt-8"
-  onClick={() => window.location.href = 'https://maps.app.goo.gl/jzcKQm982JkLbmV77'}
->
-  Get Started
-</button>
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg mt-8"
+          onClick={() => window.location.href = 'https://maps.app.goo.gl/jzcKQm982JkLbmV77'}
+        >
+          Get Started
+        </button>
       </section>
 
       {/* Visa Services Section */}
       <section className="py-16 bg-white text-center">
-       <VisaServicesSection />
+        <VisaServicesSection />
       </section>
 
       {/* About Section */}
       <section className="py-16 bg-gray-100 flex items-center justify-center">
         <div className="max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10">
-          <img src="/social-banner.png" alt="About Us" className="rounded-lg shadow-lg w-full" />
+          <div className="relative w-full h-64 md:h-96">
+            <Image
+              src="/social-banner.png"
+              alt="About Us"
+              fill
+              className="rounded-lg shadow-lg object-cover"
+            />
+          </div>
           <div>
             <h2 className="text-3xl font-bold mb-6">We help Making your dream into Reality</h2>
             <p className="text-lg mb-4">
-              Galaxy  Consultants was created to provide uniquely designed premium services in the field of education .
+              Galaxy Consultants was created to provide uniquely designed premium services in the field of education.
             </p>
             <ul className="list-disc pl-6 text-lg">
               <li>Checking Visa Eligibility</li>
@@ -133,10 +109,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-
-
-      
 
       {/* Why Choose Us Section */}
       <section className="bg-[#FCECEC] py-20">
@@ -240,8 +212,6 @@ export default function HomePage() {
       </section>
 
       {/* Blogs Section */}
-     
-      
     </div>
   );
 }

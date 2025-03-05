@@ -187,7 +187,7 @@ export default async function BlogPage({ params }) {
             types: {
               image: ({ value }) => (
                 <div className="my-4">
-                  <img
+                  <Image
                     src={urlFor(value).url()}
                     alt={value.alt || 'Blog image'}
                     className="w-full h-auto rounded"

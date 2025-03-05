@@ -1,17 +1,10 @@
-import sanityClient from '@sanity/client';
+import { createClient } from 'next-sanity'
 
-const projectId = process.env.SANITY_PROJECT_ID;
-const dataset = process.env.SANITY_DATASET || "production";
+import { apiVersion, dataset, projectId } from '../env'
 
-if (!projectId) {
-  throw new Error("Sanity projectId is missing. Please set the SANITY_PROJECT_ID environment variable.");
-}
-if (!dataset) {
-  throw new Error("Sanity dataset is missing. Please set the SANITY_DATASET environment variable.");
-}
-
-export const client = sanityClient({
+export const client = createClient({
   projectId,
   dataset,
-  useCdn: true, // Set to false for fresh data
-});
+  apiVersion,
+  useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
+})

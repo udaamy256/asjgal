@@ -1,28 +1,13 @@
 import BlogDetails from "@/components/blogdetail/page";
 import siteMetadata from "@/utils/siteMetaData";
-import { client } from "@/lib/sanityClient"; // Updated import path
+import { client } from "@/sanity/lib/client"; // Use the imported client
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import VisitCourseButton from "@/components/button/page";
 import { PortableText } from "next-sanity";
 
-// Configure Sanity client in a separate file (e.g., lib/sanityClient.js)
-import sanityClient from '@sanity/client';
-
-const sanityConfig = {
-  projectId: process.env.SANITY_PROJECT_ID,
-  dataset: process.env.SANITY_DATASET || "production",
-  useCdn: true, // Set to false if you need fresh data
-};
-
-if (!sanityConfig.projectId) {
-  throw new Error("Sanity projectId is missing. Please set the SANITY_PROJECT_ID environment variable.");
-}
-
-export const client = sanityClient(sanityConfig);
-
-// Metadata generation for SEO
+// Use the Metadata API for handling meta tags and SEO
 export async function generateMetadata({ params }) {
   const { slug } = params;
 
@@ -82,7 +67,7 @@ export default async function BlogPage({ params }) {
       href,
       content,
       heading1,
-      heading2
+      heading2,
     }
   `;
 
@@ -165,12 +150,12 @@ export default async function BlogPage({ params }) {
                     >
                       {heading.level === "3" && (
                         <span className="flex w-1 h-1 rounded-full bg-dark dark:bg-light mr-2">
-                          &nbsp;
+                           
                         </span>
                       )}
                       {heading.level === "4" && (
                         <span className="flex w-1 h-1 rounded-full bg-dark dark:bg-light mr-3">
-                          &nbsp;
+                           
                         </span>
                       )}
                       <span className="hover:underline">{heading.text}</span>

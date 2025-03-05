@@ -1,17 +1,31 @@
 import BlogDetails from "@/components/blogdetail/page";
 import siteMetadata from "@/utils/siteMetaData";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/sanityClient"; // Updated import path
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import VisitCourseButton from "@/components/button/page";
 import { PortableText } from "next-sanity";
 
-// Use the Metadata API for handling meta tags and SEO
+// Configure Sanity client in a separate file (e.g., lib/sanityClient.js)
+import sanityClient from '@sanity/client';
+
+const sanityConfig = {
+  projectId: process.env.SANITY_PROJECT_ID,
+  dataset: process.env.SANITY_DATASET || "production",
+  useCdn: true, // Set to false if you need fresh data
+};
+
+if (!sanityConfig.projectId) {
+  throw new Error("Sanity projectId is missing. Please set the SANITY_PROJECT_ID environment variable.");
+}
+
+export const client = sanityClient(sanityConfig);
+
+// Metadata generation for SEO
 export async function generateMetadata({ params }) {
   const { slug } = params;
 
-  // Fetch the blog data from Sanity for the "dev" type
   const query = `
     *[_type == "course" && slug.current == $slug][0]{
       title,
@@ -29,7 +43,6 @@ export async function generateMetadata({ params }) {
     return null;
   }
 
-  // Generate the image URL or fallback to a social banner image
   const imageUrl = blog.image ? urlFor(blog.image).url() : siteMetadata.socialBanner;
 
   return {
@@ -40,18 +53,18 @@ export async function generateMetadata({ params }) {
       description: blog.description,
       url: `https://www.epicssolution.com/Engineering/${slug}`,
       images: imageUrl ? [{ url: imageUrl }] : [],
-      type: 'article',
+      type: "article",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: blog.title,
       description: blog.description,
       images: imageUrl ? [imageUrl] : [],
     },
     other: {
-      'pinterest:title': blog.title,
-      'pinterest:description': blog.description,
-      'pinterest:image': imageUrl,
+      "pinterest:title": blog.title,
+      "pinterest:description": blog.description,
+      "pinterest:image": imageUrl,
     },
   };
 }
@@ -59,7 +72,6 @@ export async function generateMetadata({ params }) {
 export default async function BlogPage({ params }) {
   const { slug } = params;
 
-  // Fetch the blog data from Sanity
   const query = `
     *[_type == "course" && slug.current == $slug][0]{
       title,
@@ -70,8 +82,7 @@ export default async function BlogPage({ params }) {
       href,
       content,
       heading1,
-      heading2,
-      
+      heading2
     }
   `;
 
@@ -91,18 +102,12 @@ export default async function BlogPage({ params }) {
   if (blog.heading2) {
     headings.push({ text: blog.heading2, slug: "heading-2", level: "2" });
   }
-  if (blog.heading3) {
-    headings.push({ text: blog.heading3, slug: "heading-3", level: "3" });
-  }
-  if (blog.heading4) {
-    headings.push({ text: blog.heading4, slug: "heading-4", level: "4" });
-  }
 
   if (blog.content && Array.isArray(blog.content)) {
     blog.content
       .filter((block) => block.style && block.style.match(/^h[1-6]$/))
       .forEach((heading, index) => {
-        const level = heading.style.replace('h', ''); // Extract the heading level
+        const level = heading.style.replace("h", "");
         const text = heading.children.map((child) => child.text).join("");
         headings.push({
           text,
@@ -112,7 +117,6 @@ export default async function BlogPage({ params }) {
       });
   }
 
-  // Render the page content
   return (
     <article>
       <div className="mb-8 text-center relative w-full h-[70vh] bg-gray-800">
@@ -181,59 +185,59 @@ export default async function BlogPage({ params }) {
         </div>
         <div className="col-span-12 lg:col-span-8 border-dark dark:border-light text-black dark:text-light">
           {blog.content ? (
-        <PortableText
-          value={blog.content}
-          components={{
-            types: {
-              image: ({ value }) => (
-                <div className="my-4">
-                  <Image
-                    src={urlFor(value).url()}
-                    alt={value.alt || 'Blog image'}
-                    className="w-full h-auto rounded"
-                  />
-                </div>
-              ),
-            },
-            marks: {
-              link: ({ value, children }) => (
-                <a
-                  href={value.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 underline"
-                >
-                  {children}
-                </a>
-              ),
-            },
-            block: {
-              h1: ({ children }) => (
-                <h1 className="text-4xl font-bold my-4">{children}</h1>
-              ),
-              h2: ({ children }) => (
-                <h2 className="text-3xl font-semibold my-4">{children}</h2>
-              ),
-              h3: ({ children }) => (
-                <h3 className="text-2xl font-medium my-3">{children}</h3>
-              ),
-              normal: ({ children }) => <p className="my-2">{children}</p>,
-              bullet: ({ children }) => (
-                <ul className="list-disc list-inside my-2">
-                  <li>{children}</li>
-                </ul>
-              ),
-              number: ({ children }) => (
-                <ol className="list-decimal list-inside my-2">
-                  <li>{children}</li>
-                </ol>
-              ),
-            },
-          }}
-        />
-      ) : (
-        <p>No content available</p>
-      )}
+            <PortableText
+              value={blog.content}
+              components={{
+                types: {
+                  image: ({ value }) => (
+                    <div className="my-4">
+                      <Image
+                        src={urlFor(value).url()}
+                        alt={value.alt || "Blog image"}
+                        className="w-full h-auto rounded"
+                      />
+                    </div>
+                  ),
+                },
+                marks: {
+                  link: ({ value, children }) => (
+                    <a
+                      href={value.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 underline"
+                    >
+                      {children}
+                    </a>
+                  ),
+                },
+                block: {
+                  h1: ({ children }) => (
+                    <h1 className="text-4xl font-bold my-4">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-3xl font-semibold my-4">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-2xl font-medium my-3">{children}</h3>
+                  ),
+                  normal: ({ children }) => <p className="my-2">{children}</p>,
+                  bullet: ({ children }) => (
+                    <ul className="list-disc list-inside my-2">
+                      <li>{children}</li>
+                    </ul>
+                  ),
+                  number: ({ children }) => (
+                    <ol className="list-decimal list-inside my-2">
+                      <li>{children}</li>
+                    </ol>
+                  ),
+                },
+              }}
+            />
+          ) : (
+            <p>No content available</p>
+          )}
         </div>
       </div>
     </article>

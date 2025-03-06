@@ -25,8 +25,8 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Our Offices</h3>
             <div className="mb-4">
-              <p>Build. 25, D-Block, Faisal Town Main Boulevard, Lahore, Pakistan.</p>
-              <p>📞 +92 300-0265943</p>
+              <p> 3rd floor,Makki Plaza, Commercial Market Rd, above Stylo Shoes, Satellite Town, Rawalpindi, 46300.</p>
+              <p>📞 +92  308 2642327</p>
             </div>
            
           </div>

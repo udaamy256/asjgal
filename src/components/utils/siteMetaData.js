@@ -10,7 +10,7 @@ const siteMetadata = {
   email: 'galaxyconsultant25600@gmail.com',
   facebook: 'https://www.facebook.com/GalaxyAbraodEducation',
   youtube: 'https://www.youtube.com/@Educationconsultant-o2j',
-  linkedin: 'http://linkedin.com/in/galaxy-abroadeducation-009a04205',
+  linkedin: 'https://www.linkedin.com/company/galaxy-ielts-institute-abroad-education-pvt-ltd/',
   instagram: 'https://www.instagram.com/galaxyconsultancy2222',
   locale: 'en-US',
 

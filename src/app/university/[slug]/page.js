@@ -1,26 +1,50 @@
+
+import Head from "next/head";
 import BlogDetails from "@/components/blogdetail/page";
 import siteMetadata from "@/utils/siteMetaData";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { PortableText } from "@portabletext/react";
+import { PortableText } from "next-sanity";
 
-// Use the Metadata API for handling meta tags and SEO
+// Utility to escape JSON-LD values
+function escapeJsonLd(value) {
+  if (!value) return "";
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+// Define typeKeywords mapping for default keywords based on blog type
+const typeKeywords = {
+  AI: "Generative AI , AI in the Oil and Gas , AI, artificial intelligence, machine learning",
+  Eng: "engineering, valves, centrifugal chiller, variable refrigerant flow , septic tank, technology, innovation",
+  equipment: "equipment, tools, machinery",
+  development: "software development, coding, programming",
+  dev: "dev, development, tech",
+  energy: "energy, sustainability, green tech,solar energy,green buildinggit pull origin main",
+  waste: "waste management, recycling, environment",
+};
+
 export async function generateMetadata({ params }) {
   const { slug } = params;
 
-  // Fetch the blog data from Sanity for the "university" type
+  // GROQ query to fetch blog data including _type and tags
   const query = `
-    *[_type == "university" && slug.current == $slug][0]{
+    *[_type in ["university"] && slug.current == $slug][0]{
+      _type,
       title,
       description,
       "slug": slug.current,
       image,
-      publishedAt
+      publishedAt,
+      tags,
+      faq[] {
+        question,
+        answer
+      }
     }
   `;
-  
+
   const blog = await client.fetch(query, { slug });
 
   if (!blog) {
@@ -28,49 +52,109 @@ export async function generateMetadata({ params }) {
     return null;
   }
 
-  const imageUrl = blog.image ? urlFor(blog.image).url() : siteMetadata.socialBanner;
+  const imageUrl = blog.image ? urlFor(blog.image).url() : "https://www.epicssolution.com/default-banner.jpg";
+
+  // FAQ Structured Data
+  const faqSchema = blog.faq
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: blog.faq.map((item) => ({
+          "@type": "Question",
+          name: escapeJsonLd(item.question),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: escapeJsonLd(
+              item.answer.map((block) => block.children.map((child) => child.text).join(" ")).join(" ")
+            ),
+          },
+        })),
+      }
+    : null;
+
+  // Generate dynamic keywords based on tags or type
+  const defaultKeywords = typeKeywords[blog._type] || "technology, innovation";
+  const keywords = blog.tags && blog.tags.length > 0 ? blog.tags.join(", ") : defaultKeywords;
 
   return {
     title: blog.title,
     description: blog.description,
+    keywords: keywords, // Dynamic keywords for SEO
     openGraph: {
       title: blog.title,
       description: blog.description,
-      url: `https://www.galaxyeducation.org/university/${slug}`,
-      images: [imageUrl],
-      type: 'article',
+      url: `https://www.epicssolution.com/${slug}`,
+      images: imageUrl ? [{ url: imageUrl }] : [],
+      type: "article",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: blog.title,
       description: blog.description,
-      images: [imageUrl],
+      images: imageUrl ? [imageUrl] : [],
     },
-    other: {
-      'pinterest:title': blog.title,
-      'pinterest:description': blog.description,
-      'pinterest:image': imageUrl,
-    },
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: blog.title,
+        description: blog.description,
+        image: imageUrl,
+        datePublished: blog.publishedAt,
+        url: `https://www.epicssolution.com/${slug}`,
+        author: { "@type": "Person", name: "Epic Solution Team" },
+        publisher: {
+          "@type": "Organization",
+          name: "EPICS Solution",
+          logo: { "@type": "ImageObject", url: siteMetadata.logo },
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `https://www.epicssolution.com/${slug}`,
+        },
+      },
+      ...(faqSchema ? [faqSchema] : []),
+    ],
   };
 }
 
 export default async function BlogPage({ params }) {
   const { slug } = params;
 
-  // Fetch the blog data from Sanity
+  // GROQ query to fetch blog data including _type, tags, and image metadata
   const query = `
-    *[_type == "university" && slug.current == $slug][0]{
+    *[_type in ["university"] && slug.current == $slug][0]{
+      _type,
       title,
       description,
       "slug": slug.current,
       image,
       publishedAt,
-      content,
-      heading1,
-      heading2
+      href,
+      content[] {
+        ...,
+        _type == "image" => {
+          ...,
+          asset-> {
+            _id,
+            url,
+            metadata {
+              dimensions {
+                width,
+                height
+              }
+            }
+          }
+        }
+      },
+      tags,
+      faq[] {
+        question,
+        answer
+      }
     }
   `;
-  
+
   const blog = await client.fetch(query, { slug });
 
   if (!blog) {
@@ -78,79 +162,134 @@ export default async function BlogPage({ params }) {
     return null;
   }
 
-  // Extract headings for Table of Contents
+  // Dynamically extract headings from blog.content for table of contents
   const headings = [];
-
-  if (blog.heading1) {
-    headings.push({ text: blog.heading1, slug: "heading-1", level: "1" });
-  }
-  if (blog.heading2) {
-    headings.push({ text: blog.heading2, slug: "heading-2", level: "2" });
-  }
-
-  if (blog.content && Array.isArray(blog.content)) {
-    blog.content.filter(block => block.style && block.style.match(/^h[1-6]$/))
-      .forEach((heading, index) => {
-        const level = heading.style.replace('h', ''); // Extract the heading level
-        const text = heading.children.map(child => child.text).join("");
+  if (Array.isArray(blog.content)) {
+    blog.content.forEach((block, index) => {
+      if (block.style && block.style.startsWith("h")) {
         headings.push({
-          text,
-          slug: `content-heading-${index}`,
-          level,
+          text: block.children.map((child) => child.text).join(" "),
+          slug: `heading-${index}`,
+          level: parseInt(block.style.replace("h", ""), 10),
         });
-      });
+      }
+    });
   }
 
-  // Render the page
+  const imageUrl = blog.image ? urlFor(blog.image).url() : siteMetadata.socialBanner;
+
+  // FAQ Structured Data for the page
+  const faqSchema = blog.faq
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: blog.faq.map((item) => ({
+          "@type": "Question",
+          name: escapeJsonLd(item.question),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: escapeJsonLd(
+              item.answer.map((block) => block.children.map((child) => child.text).join(" ")).join(" ")
+            ),
+          },
+        })),
+      }
+    : null;
+
+  // Calculate dynamic keywords
+  const defaultKeywords = typeKeywords[blog._type] || "technology, innovation";
+  const keywords = blog.tags && blog.tags.length > 0 ? blog.tags.join(", ") : defaultKeywords;
+
   return (
     <article>
-      <div className="mb-8 text-center relative w-full h-[70vh] bg-gray-800">
-        <div className="w-full z-10 flex flex-col items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <h1 className="inline-block mt-6 font-semibold capitalize text-white text-2xl md:text-3xl lg:text-5xl !leading-normal relative w-5/6">
-            {blog.title}
-          </h1>
-        </div>
-        <div className="absolute top-0 left-0 right-0 bottom-0 h-full bg-gray-800/60" />
+      <Head>
+        <title>{blog.title}</title>
+        <meta name="description" content={blog.description} />
+        <meta name="keywords" content={keywords} />
+        <link rel="canonical" href={`https://www.epicssolution.com/${slug}`} />
+        <meta name="author" content="Epic Solution Team" />
+        <meta name="robots" content="index, follow" />
+
+        {/* Open Graph Tags */}
+        <meta property="og:title" content={blog.title} />
+        <meta property="og:description" content={blog.description} />
+        <meta property="og:url" content={`https://www.epicssolution.com/${slug}`} />
+        <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Epic Solution Blog" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:updated_time" content={new Date().toISOString()} />
+
+        {/* Twitter Card Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={blog.title} />
+        <meta name="twitter:description" content={blog.description} />
+        <meta name="twitter:image" content={imageUrl} />
+
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: blog.title,
+                description: blog.description,
+                image: imageUrl,
+                datePublished: blog.publishedAt,
+                url: `https://www.epicssolution.com/${slug}`,
+                author: { "@type": "Person", name: "Epic Solution Team" },
+                publisher: {
+                  "@type": "Organization",
+                  name: "EPICS Solution",
+                  logo: { "@type": "ImageObject", url: siteMetadata.logo },
+                },
+                mainEntityOfPage: {
+                  "@type": "WebPage",
+                  "@id": `https://www.epicssolution.com/${slug}`,
+                },
+              },
+              ...(faqSchema ? [faqSchema] : []),
+            ]),
+          }}
+        />
+      </Head>
+
+      {/* Hero Image Section */}
+      <div className="relative w-full h-[70vh] bg-gray-800">
         {blog.image && (
-          <Image
-            src={urlFor(blog.image).url()}
-            alt={blog.title}
-            fill
-            className="aspect-square w-full h-full object-cover object-center"
-            priority
-            sizes="100vw"
-          />
+          <div title={blog.title}>
+            <Image
+              src={imageUrl}
+              alt={`${blog.title} - ${blog.description.slice(0, 50)}`}
+              fill
+              className="aspect-square w-full h-full object-cover object-center"
+              loading="lazy"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 75vw, 50vw"
+            />
+          </div>
         )}
-      </div>
-      <BlogDetails blog={blog} slug={params.slug} toc={headings} />
-      <div className="grid grid-cols-12 gap-y-8 lg:gap-8 sxl:gap-16 mt-8 px-5 md:px-10">
-        <div className="col-span-12 lg:col-span-4">
+      </div> {/* Added closing div here */}
+
+      <div className="grid grid-cols-12 gap-8 mt-8 px-5 md:px-10">
+        {/* Table of Contents - Hidden on Mobile */}
+        <div className="col-span-12 lg:col-span-4 hidden lg:block">
           <details
-            className="border-[1px] border-solid border-dark dark:border-light text-black dark:text-light rounded-lg p-4 sticky top-6 max-h-[80vh] overflow-hidden overflow-y-auto"
+            className="border border-dark text-black rounded-lg p-4 sticky top-6 max-h-[80vh] overflow-auto"
             open
           >
             <summary className="text-lg font-semibold capitalize cursor-pointer">
               Table Of Contents
             </summary>
-            <ul className="mt-4 font-in text-base">
+            <ul className="mt-4">
               {headings.length > 0 ? (
                 headings.map((heading) => (
                   <li key={heading.slug} className="py-1">
-                    <a
-                      href={`#${heading.slug}`}
-                      data-level={heading.level}
-                      className={`data-[level="1"]:pl-0 data-[level="2"]:pl-4
-                                  data-[level="2"]:border-t border-solid border-dark/40
-                                  data-[level="3"]:pl-8
-                                  flex items-center justify-start
-                                  hover:text-blue-500`}
-                    >
-                      {heading.level === "3" && (
-                        <span className="flex w-1 h-1 rounded-full bg-dark dark:bg-light mr-2">
-                          &nbsp;
-                        </span>
-                      )}
-                      <span className="hover:underline">{heading.text}</span>
+                    <a href={`#${heading.slug}`} className="text-blue-500 hover:underline">
+                      {heading.text}
                     </a>
                   </li>
                 ))
@@ -160,8 +299,102 @@ export default async function BlogPage({ params }) {
             </ul>
           </details>
         </div>
-        <div className="col-span-12 lg:col-span-8 border-dark dark:border-light text-black dark:text-light">
-          {blog.content ? <PortableText value={blog.content} /> : <p>No content available</p>}
+
+        {/* Blog Content */}
+        <div className="col-span-12 lg:col-span-8 text-black bg-light dark:bg-dark text-dark dark:text-light transition-all ease">
+          {blog.content ? (
+            <PortableText
+              value={blog.content}
+              components={{
+                types: {
+                  image: ({ value }) => {
+                    // Check if dimensions are available in the metadata
+                    if (value.asset && value.asset.metadata && value.asset.metadata.dimensions) {
+                      const { width, height } = value.asset.metadata.dimensions;
+                      return (
+                        <div className="my-4">
+                          <Image
+                            src={urlFor(value).url()}
+                            alt={value.alt || "Blog image"}
+                            width={width}
+                            height={height}
+                            className="w-full h-auto rounded"
+                          />
+                        </div>
+                      );
+                    } else {
+                      // Fallback in case metadata is missing
+                      return (
+                        <div className="my-4">
+                          <Image
+                            src={urlFor(value).url()}
+                            alt={value.alt || "Blog image"}
+                            width={800}  // Default width
+                            height={600} // Default height
+                            className="w-full h-auto rounded"
+                          />
+                        </div>
+                      );
+                    }
+                  },
+                },
+                marks: {
+                  link: ({ value, children }) => (
+                    <a
+                      href={value.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      {children}
+                    </a>
+                  ),
+                },
+                block: {
+                  h1: ({ children }) => (
+                    <h1 className="text-4xl font-bold my-4">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-3xl font-semibold my-4">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-2xl font-medium my-3">{children}</h3>
+                  ),
+                  normal: ({ children }) => <p className="my-2">{children}</p>,
+                },
+              }}
+            />
+          ) : (
+            <p>No content available</p>
+          )}
+
+          {/* FAQ Section */}
+          {blog.faq && blog.faq.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-3xl font-semibold mb-4">Frequently Asked Questions</h2>
+              {blog.faq.map((item, index) => (
+                <div key={index} className="mb-6">
+                  <h3 className="text-xl font-medium text-blue-600">{item.question}</h3>
+                  <PortableText
+                    value={item.answer}
+                    components={{
+                      block: {
+                        normal: ({ children }) => <p className="mt-2">{children}</p>,
+                      },
+                      list: {
+                        bullet: ({ children }) => <ul className="list-disc ml-5 mt-2">{children}</ul>,
+                        number: ({ children }) => <ol className="list-decimal ml-5 mt-2">{children}</ol>,
+                      },
+                      listItem: {
+                        bullet: ({ children }) => <li>{children}</li>,
+                        number: ({ children }) => <li>{children}</li>,
+                      },
+                    }}
+                  />
+                </div>
+              ))}
+            </section>
+          )}
         </div>
       </div>
     </article>

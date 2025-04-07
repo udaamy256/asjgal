@@ -1,10 +1,10 @@
-import {defineField, defineType} from 'sanity'
+import { defineField, defineType } from 'sanity';
 
 export const eventType = defineType({
   name: 'course',
   title: 'course',
   type: 'document',
-     fields: [
+  fields: [
     defineField({
       name: 'title',
       type: 'string',
@@ -30,7 +30,7 @@ export const eventType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'heading4', // Removed space from the field name
+      name: 'heading4',
       type: 'string',
       title: 'Heading 4',
       validation: (Rule) => Rule.required(),
@@ -52,11 +52,13 @@ export const eventType = defineType({
       options: {
         hotspot: true,
       },
+      validation: (Rule) => Rule.required().warning('An image is a must for this post!'),
       fields: [
         defineField({
           name: 'alt',
           type: 'string',
           title: 'Alt Text',
+          validation: (Rule) => Rule.required().warning('Alt text helps with accessibility.'),
         }),
       ],
     }),
@@ -66,120 +68,177 @@ export const eventType = defineType({
       type: 'text',
       validation: (Rule) => Rule.required().max(200),
     }),
-  // Main content block
-    defineField({
-      title: 'Main Content',
-      name: 'content',
-      type: 'array',
-      description: 'Add the main content of the post here. You can format it using headings, paragraphs, images, links, etc.',
-      of: [
-        {
-          type: 'block',
-          styles: [
-            { title: 'Normal', value: 'normal' },
-            { title: 'Heading 1', value: 'h1' },
-            { title: 'Heading 2', value: 'h2' },
-            { title: 'Heading 3', value: 'h3' },
-            { title: 'Heading 4', value: 'h4' },
-            { title: 'Heading 5', value: 'h5' },
-            { title: 'Heading 6', value: 'h6' },
-          ],
-          lists: [
-            { title: 'Bullet', value: 'bullet' },
-            { title: 'Numbered', value: 'number' },
-          ],
-          marks: {
-            decorators: [
-              { title: 'Bold', value: 'strong' },
-              { title: 'Italic', value: 'em' },
-              { title: 'Underline', value: 'underline' },
-            ],
-            annotations: [
-              {
-                title: 'URL',
-                name: 'link',
-                type: 'object',
-                fields: [
-                  {
-                    title: 'URL',
-                    name: 'href',
-                    type: 'url',
-                  },
-                  {
-                    title: 'Open in New Tab',
-                    name: 'blank',
-                    type: 'boolean',
-                  },
-                ],
-              },
+   defineField({
+  title: 'Main Content',
+  name: 'content',
+  type: 'array',
+  description: 'Add the main content of the post here—paragraphs, headings, images, whatever works!',
+  of: [
+    {
+      type: 'block',
+      styles: [
+        { title: 'Normal', value: 'normal' },
+        { title: 'Heading 1', value: 'h1' },
+        { title: 'Heading 2', value: 'h2' },
+        { title: 'Heading 3', value: 'h3' },
+        { title: 'Heading 4', value: 'h4' },
+        { title: 'Heading 5', value: 'h5' },
+        { title: 'Heading 6', value: 'h6' },
+      ],
+      lists: [
+        { title: 'Bullet', value: 'bullet' },
+        { title: 'Numbered', value: 'number' },
+      ],
+      marks: {
+        decorators: [
+          { title: 'Bold', value: 'strong' },
+          { title: 'Italic', value: 'em' },
+          { title: 'Underline', value: 'underline' },
+        ],
+        annotations: [
+          {
+            title: 'URL',
+            name: 'link',
+            type: 'object',
+            fields: [
+              { title: 'URL', name: 'href', type: 'url' },
+              { title: 'Open in New Tab', name: 'blank', type: 'boolean' },
             ],
           },
+        ],
+      },
+    },
+    {
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        { title: 'Caption', name: 'caption', type: 'string', options: { isHighlighted: true } },
+        {
+          title: 'Alt Text',
+          name: 'alt',
+          type: 'string',
+          validation: (Rule) => Rule.required().warning('Alt text is key for accessibility.'),
+        },
+        { title: 'Image Width', name: 'width', type: 'number' },
+        { title: 'Image Height', name: 'height', type: 'number' },
+        { title: 'Lazy Load', name: 'lazyLoad', type: 'boolean', initialValue: true },
+      ],
+    },
+    {
+      type: 'object',
+      name: 'customEmbed',
+      title: 'Custom Embed',
+      fields: [{ title: 'Embed URL', name: 'embedUrl', type: 'url' }],
+      preview: {
+        select: { title: 'embedUrl' },
+        prepare(selection) {
+          const { title } = selection;
+          return { title: title ? `Embed: ${title}` : 'Embed: No URL Set' };
+        },
+      },
+    },
+    // New YouTube Embed Field
+    {
+      type: 'object',
+      name: 'youtubeEmbed',
+      title: 'YouTube Video Embed',
+      fields: [
+        {
+          title: 'YouTube Video URL',
+          name: 'videoUrl',
+          type: 'url',
+          validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }).required().warning('Enter a valid YouTube video URL!'),
         },
         {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            {
-              title: 'Caption',
-              name: 'caption',
-              type: 'string',
-              options: { isHighlighted: true },
-            },
-            {
-              title: 'Alt Text',
-              name: 'alt',
-              type: 'string',
-              validation: (Rule) => Rule.required().warning('Alt text is important for accessibility.'),
-            },
-          ],
+          title: 'Video Height',
+          name: 'videoHeight',
+          type: 'number',
+          initialValue: 500, // Default height value
         },
+        {
+          title: 'Video Width',
+          name: 'videoWidth',
+          name: 'videoWidth',
+          type: 'number',
+          initialValue: 800, // Default width value
+        },
+      ],
+      preview: {
+        select: {
+          title: 'videoUrl',
+        },
+        prepare(selection) {
+          const { title } = selection;
+          return { title: title ? `YouTube Video: ${title}` : 'YouTube Video: No URL Set' };
+        },
+      },
+    },
+  ],
+}),
+
+    // New FAQ Field Starts Here
+    defineField({
+      name: 'faq',
+      title: 'FAQs',
+      type: 'array',
+      description: 'Add frequently asked questions and answers about skip bins or waste management here!',
+      of: [
         {
           type: 'object',
-          name: 'customEmbed',
-          title: 'Custom Embed',
+          name: 'faqItem',
+          title: 'FAQ Item',
           fields: [
-            {
-              title: 'Embed URL',
-              name: 'embedUrl',
-              type: 'url',
-            },
+            defineField({
+              name: 'question',
+              title: 'Question',
+              type: 'string',
+              validation: (Rule) => Rule.required().min(5).warning('Keep questions short and clear!'),
+            }),
+            defineField({
+              name: 'answer',
+              title: 'Answer',
+              type: 'array',
+              of: [{ type: 'block' }], // Rich text for answers
+              validation: (Rule) => Rule.required().warning('Every question needs an answer!'),
+            }),
           ],
           preview: {
             select: {
-              title: 'embedUrl',
+              title: 'question',
             },
             prepare(selection) {
               const { title } = selection;
               return {
-                title: `Embed: ${title}`,
+                title: title || 'Unnamed FAQ',
               };
             },
           },
         },
       ],
     }),
-    
+    // End of FAQ Field
     defineField({
       name: 'tags',
       type: 'array',
       title: 'Tags',
       of: [{ type: 'string' }],
-      options: {
-        layout: 'tags',
-      },
+      options: { layout: 'tags' },
+      validation: (Rule) => Rule.max(10).warning('Keep it to 10 tags or fewer!').unique(),
     }),
     defineField({
       title: 'Link',
       name: 'href',
       type: 'url',
-      validation: Rule => Rule.uri({
-        scheme: ['http', 'https', 'mailto', 'tel']
-      })
+      validation: (Rule) =>
+        Rule.uri({
+          scheme: ['http', 'https', 'mailto', 'tel'],
+        }),
     }),
     defineField({
       name: 'publishedAt',
       type: 'datetime',
       title: 'Published At',
+      initialValue: () => new Date().toISOString(),
     }),
   ],
 });

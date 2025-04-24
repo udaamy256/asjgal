@@ -34,7 +34,7 @@ const Courses = () => {
     return <div className="text-center mt-16">Loading...</div>;
   }
 
-  const sidebarPosts = posts.slice(6, 10);
+  const sidebarPosts = posts.slice(1, 4);
 
   const schemas = posts.map((post) => ({
     "@context": "https://schema.org",

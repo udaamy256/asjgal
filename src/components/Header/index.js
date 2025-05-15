@@ -8,10 +8,16 @@ import siteMetadata from "@/utils/siteMetaData";
 import { useState } from "react";
 
 const Header = () => {
-  const [click, setClick] = useState(false);
+  const [click, setClick] = useState(false);              // Mobile nav toggle
+  const [mobileCatOpen, setMobileCatOpen] = useState(false); // Mobile category submenu toggle
+  const [isOpen, setIsOpen] = useState(false);             // Desktop dropdown toggle
 
   const toggle = () => {
     setClick(!click);
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -37,31 +43,29 @@ const Header = () => {
         {/* Logo Section */}
         <div className="flex items-center justify-between w-full sm:w-auto">
           <Logo />
-          
+
           {/* Hamburger Menu for Mobile */}
           <button
             className="inline-block sm:hidden z-50"
             onClick={toggle}
             aria-label="Menu"
           >
-            <div className="w-8 cursor-pointer transition-all ease duration-300">
-              <div className="relative">
-                <span
-                  className={`absolute top-0 inline-block w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
-                    click ? "rotate-45 translate-y-2" : "translate-y-1"
-                  }`}
-                />
-                <span
-                  className={`absolute top-0 inline-block w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
-                    click ? "opacity-0" : "opacity-100 translate-y-3"
-                  }`}
-                />
-                <span
-                  className={`absolute top-0 inline-block w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
-                    click ? "-rotate-45 translate-y-2" : "translate-y-5"
-                  }`}
-                />
-              </div>
+            <div className="w-8 cursor-pointer transition-all ease duration-300 relative h-6">
+              <span
+                className={`absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
+                  click ? "rotate-45 translate-y-2" : "translate-y-1"
+                }`}
+              />
+              <span
+                className={`absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
+                  click ? "opacity-0" : "opacity-100 translate-y-3"
+                }`}
+              />
+              <span
+                className={`absolute top-0 left-0 w-full h-0.5 bg-gray-800 rounded transition-all ease duration-200 ${
+                  click ? "-rotate-45 translate-y-2" : "translate-y-5"
+                }`}
+              />
             </div>
           </button>
         </div>
@@ -93,26 +97,33 @@ const Header = () => {
                   Home
                 </Link>
               </li>
+
               <li>
-               <div>
-             <button
-               className="w-full flex justify-between items-center font-semibold mb-1"
-               onClick={() => setMobileCatOpen(!mobileCatOpen)}
-             >
-               Universities <span className="text-xs">{mobileCatOpen ? "▴" : "▾"}</span>
-             </button>
-             {mobileCatOpen && (
-               <div className="space-y-1 pl-4">
-                   <Link href="/uni" className="block hover:text-pink-500">
-                    Study in UK
-                  </Link>
-                  <Link href="/Germany" className="block hover:text-pink-500">
-                    Study in Germany
-                  </Link>
-               </div>
-             )}
-           </div>
+                <div>
+                  <button
+                    className="w-full flex justify-between items-center font-semibold mb-1"
+                    onClick={() => setMobileCatOpen(!mobileCatOpen)}
+                    aria-expanded={mobileCatOpen}
+                    aria-controls="mobile-universities-submenu"
+                  >
+                    Universities <span className="text-xs">{mobileCatOpen ? "▴" : "▾"}</span>
+                  </button>
+                  {mobileCatOpen && (
+                    <div
+                      id="mobile-universities-submenu"
+                      className="space-y-1 pl-4"
+                    >
+                      <Link href="/uni" onClick={toggle} className="block hover:text-pink-500">
+                        Study in UK
+                      </Link>
+                      <Link href="/Germany" onClick={toggle} className="block hover:text-pink-500">
+                        Study in Germany
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </li>
+
               <li>
                 <Link
                   href="/courses"
@@ -149,26 +160,34 @@ const Header = () => {
           <Link href="/" className="hover:text-blue-600 transition-colors duration-200">
             Home
           </Link>
-         <div className="relative">
-              <button
-                onClick={toggleDropdown}
-                className="hover:text-pink-600 transition flex items-center space-x-1"
+
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="hover:text-pink-600 transition flex items-center space-x-1"
+              aria-expanded={isOpen}
+              aria-haspopup="true"
+              aria-controls="desktop-universities-dropdown"
+            >
+              <span>Universities</span>
+              <span className="text-xs">▾</span>
+            </button>
+            {isOpen && (
+              <div
+                id="desktop-universities-dropdown"
+                className="absolute left-0 mt-2 bg-white border rounded-md shadow-md p-2 w-56 z-50 space-y-1"
+                role="menu"
               >
-                <span>Universities</span>
-                <span className="text-xs">▾</span>
-              </button>
-              {isOpen && (
-                <div className="absolute left-0 mt-2 bg-white border rounded-md shadow-md p-2 w-56 z-50 space-y-1">
-                  <Link href="/uni" className="block hover:text-pink-500">
-                    Study in UK
-                  </Link>
-                  <Link href="/Germany" className="block hover:text-pink-500">
-                    Study in Germany
-                  </Link>
-                 
-                </div>
-              )}
-            </div>
+                <Link href="/uni" className="block hover:text-pink-500" role="menuitem">
+                  Study in UK
+                </Link>
+                <Link href="/Germany" className="block hover:text-pink-500" role="menuitem">
+                  Study in Germany
+                </Link>
+              </div>
+            )}
+          </div>
+
           <Link href="/courses" className="hover:text-blue-600 transition-colors duration-200">
             Courses
           </Link>

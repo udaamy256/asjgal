@@ -94,13 +94,24 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/uni"
-                  onClick={toggle}
-                  className="hover:text-blue-600 transition-colors duration-200"
-                >
-                  Universities
-                </Link>
+               <div>
+             <button
+               className="w-full flex justify-between items-center font-semibold mb-1"
+               onClick={() => setMobileCatOpen(!mobileCatOpen)}
+             >
+               Universities <span className="text-xs">{mobileCatOpen ? "▴" : "▾"}</span>
+             </button>
+             {mobileCatOpen && (
+               <div className="space-y-1 pl-4">
+                   <Link href="/uni" className="block hover:text-pink-500">
+                    Study in UK
+                  </Link>
+                  <Link href="/Germany" className="block hover:text-pink-500">
+                    Study in Germany
+                  </Link>
+               </div>
+             )}
+           </div>
               </li>
               <li>
                 <Link
@@ -138,9 +149,26 @@ const Header = () => {
           <Link href="/" className="hover:text-blue-600 transition-colors duration-200">
             Home
           </Link>
-          <Link href="/uni" className="hover:text-blue-600 transition-colors duration-200">
-            Universities
-          </Link>
+         <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="hover:text-pink-600 transition flex items-center space-x-1"
+              >
+                <span>Universities</span>
+                <span className="text-xs">▾</span>
+              </button>
+              {isOpen && (
+                <div className="absolute left-0 mt-2 bg-white border rounded-md shadow-md p-2 w-56 z-50 space-y-1">
+                  <Link href="/uni" className="block hover:text-pink-500">
+                    Study in UK
+                  </Link>
+                  <Link href="/Germany" className="block hover:text-pink-500">
+                    Study in Germany
+                  </Link>
+                 
+                </div>
+              )}
+            </div>
           <Link href="/courses" className="hover:text-blue-600 transition-colors duration-200">
             Courses
           </Link>

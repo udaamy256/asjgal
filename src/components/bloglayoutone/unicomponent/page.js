@@ -99,7 +99,7 @@ const UniComponent1  = () => {
                     </Link>
                   </div>
                   <div className="md:w-2/3">
-                    <Link href={`/blog/${post.slug}`}>
+                    <Link href={`/university/${post.slug}`}>
                       <h2 className="text-2xl font-bold hover:underline">
                         {post.title}
                       </h2>

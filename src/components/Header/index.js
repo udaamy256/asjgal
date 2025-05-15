@@ -111,7 +111,7 @@ const Header = () => {
                   {mobileCatOpen && (
                     <div
                       id="mobile-universities-submenu"
-                      className="space-y-1 pl-4"
+                      className="space-y-1 pl-4 text-black"
                     >
                       <Link href="/uni" onClick={toggle} className="block hover:text-pink-500">
                         Study in UK
@@ -175,7 +175,7 @@ const Header = () => {
             {isOpen && (
               <div
                 id="desktop-universities-dropdown"
-                className="absolute left-0 mt-2 bg-white border rounded-md shadow-md p-2 w-56 z-50 space-y-1"
+                className="absolute left-0 mt-2 bg-white border rounded-md shadow-md p-2 w-56 z-50 space-y-1 text-black"
                 role="menu"
               >
                 <Link href="/uni" className="block hover:text-pink-500" role="menuitem">

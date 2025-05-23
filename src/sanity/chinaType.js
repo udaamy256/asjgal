@@ -1,6 +1,6 @@
 import { defineField, defineType } from 'sanity';
 
-export const germanyType = defineType({
+export const chinaType = defineType({
   name: 'china',
   title: 'china',
   type: 'document',

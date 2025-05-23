@@ -25,7 +25,7 @@ export async function generateMetadata({ params }) {
 
   // GROQ query to fetch blog data including _type and tags
   const query = `
-    *[_type in ["germany, china"] && slug.current == $slug][0]{
+    *[_type in ["germany", "china"] && slug.current == $slug][0]{
       _type,
       title,
       description,

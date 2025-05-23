@@ -118,7 +118,7 @@ export default async function BlogPage({ params }) {
 
   // GROQ query to fetch blog data including _type, tags, and image metadata
   const query = `
-    *[_type in ["germany"] && slug.current == $slug][0]{
+    *[_type in ["germany","china"] && slug.current == $slug][0]{
       _type,
       title,
       description,

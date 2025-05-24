@@ -11,5 +11,5 @@ import { AustraliaType } from "../AustraliaType"
 
 
 export const schema = {
-  types: [eventType, blogType, secType, uniType, sucessType,germanyType,chinaType],
+  types: [eventType, blogType, secType, uniType, sucessType,germanyType,chinaType,AustraliaType],
 }

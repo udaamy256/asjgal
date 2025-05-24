@@ -122,6 +122,9 @@ const Header = () => {
                         <Link href="/China" onClick={toggle} className="block hover:text-pink-500">
                         Study in China
                       </Link>
+                        <Link href="/Australia" onClick={toggle} className="block hover:text-pink-500">
+                        Study in Australia
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -189,6 +192,9 @@ const Header = () => {
                 </Link>
                    <Link href="/China" className="block hover:text-pink-500" role="menuitem">
                   Study in China
+                </Link>
+                  <Link href="/Australia" className="block hover:text-pink-500" role="menuitem">
+                  Study in Australia
                 </Link>
               </div>
             )}

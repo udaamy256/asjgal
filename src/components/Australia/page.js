@@ -154,7 +154,7 @@ const UniComponent1  = () => {
                     />
                   </div>
                   <div className="ml-4">
-                    <Link href={`/university/${post.slug}`}>
+                    <Link href={`/${post.slug}`}>
                       <h4 className="text-sm font-medium hover:underline text-gray-900 dark:text-gray-100">
                         {post.title.length > 20
                           ? `${post.title.slice(0, 20)}...`

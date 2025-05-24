@@ -5,6 +5,8 @@ import { uniType } from "../uniType"
 import { sucessType } from "../sucesstype"
 import { germanyType } from "../germanyType"
 import { chinaType } from "../chinaType"
+import { AustraliaType } from "../AustraliaType"
+
 
 
 

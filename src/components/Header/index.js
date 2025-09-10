@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 
 import Head from "next/head";
 import Link from "next/link";
@@ -8,9 +8,9 @@ import siteMetadata from "@/utils/siteMetaData";
 import { useState } from "react";
 
 const Header = () => {
-  const [click, setClick] = useState(false);              // Mobile nav toggle
+  const [click, setClick] = useState(false); // Mobile nav toggle
   const [mobileCatOpen, setMobileCatOpen] = useState(false); // Mobile category submenu toggle
-  const [isOpen, setIsOpen] = useState(false);             // Desktop dropdown toggle
+  const [isOpen, setIsOpen] = useState(false); // Desktop dropdown toggle
 
   const toggle = () => {
     setClick(!click);
@@ -39,6 +39,7 @@ const Header = () => {
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Epics Solution | Online Courses & Blogs" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2297409441520480" crossorigin="anonymous"></script>
       </Head>
 
       <header className="w-full p-4 px-5 sm:px-10 flex items-center justify-between bg-gray-600 shadow-sm relative z-50">

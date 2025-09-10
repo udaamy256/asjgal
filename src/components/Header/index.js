@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import Head from "next/head";
 import Link from "next/link";
@@ -25,8 +25,8 @@ const Header = () => {
       {/* Meta tags for SEO */}
       <Head>
         <title>Epics Solution | Online Courses & Blogs</title>
-    <meta name='impact-site-verification' value='b4e29fa5-7e74-46cb-aded-390407d6a8ff'>
-    <meta name="google-adsense-account" content="ca-pub-2297409441520480">
+        <meta name="impact-site-verification" value="b4e29fa5-7e74-46cb-aded-390407d6a8ff" />
+        <meta name="google-adsense-account" content="ca-pub-2297409441520480" />
         <meta
           name="description"
           content="Empowering students with the best global online courses and skill-building resources."
@@ -121,10 +121,10 @@ const Header = () => {
                       <Link href="/Germany" onClick={toggle} className="block hover:text-pink-500">
                         Study in Germany
                       </Link>
-                        <Link href="/China" onClick={toggle} className="block hover:text-pink-500">
+                      <Link href="/China" onClick={toggle} className="block hover:text-pink-500">
                         Study in China
                       </Link>
-                        <Link href="/Australia" onClick={toggle} className="block hover:text-pink-500">
+                      <Link href="/Australia" onClick={toggle} className="block hover:text-pink-500">
                         Study in Australia
                       </Link>
                     </div>
@@ -192,10 +192,10 @@ const Header = () => {
                 <Link href="/Germany" className="block hover:text-pink-500" role="menuitem">
                   Study in Germany
                 </Link>
-                   <Link href="/China" className="block hover:text-pink-500" role="menuitem">
+                <Link href="/China" className="block hover:text-pink-500" role="menuitem">
                   Study in China
                 </Link>
-                  <Link href="/Australia" className="block hover:text-pink-500" role="menuitem">
+                <Link href="/Australia" className="block hover:text-pink-500" role="menuitem">
                   Study in Australia
                 </Link>
               </div>

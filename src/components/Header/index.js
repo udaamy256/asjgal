@@ -26,6 +26,7 @@ const Header = () => {
       <Head>
         <title>Epics Solution | Online Courses & Blogs</title>
     <meta name='impact-site-verification' value='b4e29fa5-7e74-46cb-aded-390407d6a8ff'>
+    <meta name="google-adsense-account" content="ca-pub-2297409441520480">
         <meta
           name="description"
           content="Empowering students with the best global online courses and skill-building resources."
